@@ -46,7 +46,7 @@ public class MyCommands : ICommandLibrary
 ```
 
 ## Syntax
-The following types can be used as parameters. 
+The following types can be used as parameters. When using commands in the console that require parameters, refer to this table for how to define objects of the requested parameter types
 
 Support can be added for additional types by creating an `IConverter` that resolves to the requested type. This will however require modifying DeveloperConsole.cs to add them to the list of available converters. (Official support for external converters will be added soon)
 
@@ -60,7 +60,7 @@ Bool | [Tr]rue, [Ff]alse | true, false, True, False
 Vector2 | (\*,\*) | (1,2), (4.3, 4)
 Vector3 | (\*,\*,\*) | (1,2,3), (4.3, 4, -1)
 Vector4 | (\*,\*,\*,\*) | (1,2,3,4), (4.3, 4, -1, 2.78)
-Color | rgba(\*,\*,\*,\*)<br>rgb(\*,\*,\*)<br>#******<br>#********<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
+Color | rgba(\*,\*,\*,\*)<br>rgb(\*,\*,\*)<br>#\*\*\*\*\*\*<br>#\*\*\*\*\*\*\*\*<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
 GameObject | {\*} | {TestSphere} {Player}
 Null | [Nn]null | null, Null
 
