@@ -53,7 +53,6 @@ namespace DeveloperConsole
 		public StringConverter()
 		{
 			matchPattern = $@"^\""(?:\\.|[^\""])*\""{BOUNDRY_TERMINATOR}";
-			Debug.Log(matchPattern);
 			extractionPattern = "(?<=[\"]).*(?=[\"])";
 		}
 
@@ -90,7 +89,7 @@ namespace DeveloperConsole
 
 		public override object Convert(string value)
 		{
-			return System.Convert.ToChar(Regex.Match(value, extractionPattern));
+			return Regex.Match(value, extractionPattern).Value[0];
 		}
 	}
 
@@ -294,12 +293,7 @@ namespace DeveloperConsole
 		public override object Convert(string value)
 		{
 			string gameObjectName = value.Substring(1, value.Length - 2);
-			var gameObject = GameObject.Find(gameObjectName);
-
-			if (gameObject == null)
-				DeveloperConsole.LogError($"Unable to find a game object with the name '{gameObjectName}'");
-
-			return gameObject;
+			return GameObject.Find(gameObjectName);
 		}
 	}
 

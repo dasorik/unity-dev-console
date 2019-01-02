@@ -9,18 +9,19 @@ public class ConsoleTests
 {
 	string substring, parameter;
 
-	void CheckConverter(bool shouldMatch, IConverter converter, string testString, string expectedParameter = "", string expectedSubstring = "")
+	void CheckConversionPasses<T>(IConverter converter, string testString, string expectedParameter = "", string expectedSubstring = "", T expectedValue = default(T))
 	{
-		if (shouldMatch)
-		{
-			Assert.IsTrue(converter.CanConvert(testString, out parameter, out substring), $"{converter.GetType().Name} could not convert string '{testString}'");
-			Assert.AreEqual(expectedParameter, parameter);
-			Assert.AreEqual(expectedSubstring, substring);
-		}
-		else
-		{
-			Assert.IsFalse(converter.CanConvert(testString, out parameter, out substring));
-		}
+		Assert.IsTrue(converter.CanConvert(testString, out parameter, out substring), $"{converter.GetType().Name} could not convert string '{testString}'");
+		Assert.AreEqual(expectedParameter, parameter);
+		Assert.AreEqual(expectedSubstring, substring);
+
+		T value = (T)converter.Convert(parameter);
+		Assert.AreEqual(expectedValue, value);
+	}
+
+	void CheckConversionFails(IConverter converter, string testString)
+	{
+		Assert.IsFalse(converter.CanConvert(testString, out parameter, out substring));
 	}
 
 
@@ -32,7 +33,7 @@ public class ConsoleTests
 		StringConverter converter = new StringConverter();
 		var testString = "\"This is a test string\"";
 
-		CheckConverter(true, converter, testString, "\"This is a test string\"", string.Empty);
+		CheckConversionPasses(converter, testString, "\"This is a test string\"", string.Empty, "This is a test string");
 	}
 
 	[Test]
@@ -41,7 +42,7 @@ public class ConsoleTests
 		StringConverter converter = new StringConverter();
 		var testString = "\"A test string with extra parameters\" (0,0,0) value";
 
-		CheckConverter(true, converter, testString, "\"A test string with extra parameters\"", " (0,0,0) value");
+		CheckConversionPasses(converter, testString, "\"A test string with extra parameters\"", " (0,0,0) value", "A test string with extra parameters");
 	}
 
 	[Test]
@@ -50,7 +51,7 @@ public class ConsoleTests
 		StringConverter converter = new StringConverter();
 		var testString = "\"A test string with another string present\" \"A second test string\"";
 
-		CheckConverter(true, converter, testString, "\"A test string with another string present\"", " \"A second test string\"");
+		CheckConversionPasses(converter, testString, "\"A test string with another string present\"", " \"A second test string\"", "A test string with another string present");
 	}
 
 	[Test]
@@ -59,7 +60,7 @@ public class ConsoleTests
 		StringConverter converter = new StringConverter();
 		var testString = "\"This test string has \\\" inside of it\" \"A second test string\"";
 
-		CheckConverter(true, converter, testString, "\"This test string has \\\" inside of it\"", " \"A second test string\"");
+		CheckConversionPasses(converter, testString, "\"This test string has \\\" inside of it\"", " \"A second test string\"", "This test string has \\\" inside of it");
 	}
 
 	[Test]
@@ -68,7 +69,7 @@ public class ConsoleTests
 		StringConverter converter = new StringConverter();
 		var testString = "\"This test string has\"inside of it\" \"A second test string\"";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -80,7 +81,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "false";
 
-		CheckConverter(true, converter, testString, "false", string.Empty);
+		CheckConversionPasses(converter, testString, "false", string.Empty, false);
 	}
 
 	[Test]
@@ -89,7 +90,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "False";
 
-		CheckConverter(true, converter, testString, "False", string.Empty);
+		CheckConversionPasses(converter, testString, "False", string.Empty, false);
 	}
 
 	[Test]
@@ -98,7 +99,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "true";
 
-		CheckConverter(true, converter, testString, "true", string.Empty);
+		CheckConversionPasses(converter, testString, "true", string.Empty, true);
 	}
 
 	[Test]
@@ -107,7 +108,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "True";
 
-		CheckConverter(true, converter, testString, "True", string.Empty);
+		CheckConversionPasses(converter, testString, "True", string.Empty, true);
 	}
 
 	[Test]
@@ -116,7 +117,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "TRUE";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -125,7 +126,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "FALSE";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -134,7 +135,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "(*&$(*)&(HJ uHIUHUI";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -143,7 +144,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "falseoidhzfIUHi4509uw9h8d";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -152,7 +153,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "oidhzfIUHfalsei4509uw9h8d";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -161,7 +162,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "oidhzfIUHi4509uw9h8dfalse";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -170,7 +171,7 @@ public class ConsoleTests
 		BoolConverter converter = new BoolConverter();
 		var testString = "falseoidhzfIUHfalsei4509uw9h8dfalse";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -182,7 +183,7 @@ public class ConsoleTests
 		CharConverter converter = new CharConverter();
 		var testString = "'a'";
 
-		CheckConverter(true, converter, testString, "'a'", string.Empty);
+		CheckConversionPasses(converter, testString, "'a'", string.Empty, 'a');
 	}
 
 	[Test]
@@ -191,16 +192,16 @@ public class ConsoleTests
 		CharConverter converter = new CharConverter();
 		var testString = "'ab'";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
 	public void CharConverterMultiple()
 	{
 		CharConverter converter = new CharConverter();
-		var testString = "'a' 34.3 'b'";
+		var testString = "'q' 34.3 'b'";
 
-		CheckConverter(true, converter, testString, "'a'", " 34.3 'b'");
+		CheckConversionPasses(converter, testString, "'q'", " 34.3 'b'", 'q');
 	}
 
 	[Test]
@@ -209,7 +210,7 @@ public class ConsoleTests
 		CharConverter converter = new CharConverter();
 		var testString = "\"a\"";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -221,7 +222,7 @@ public class ConsoleTests
 		IntConverter converter = new IntConverter();
 		string testString = "346";
 
-		CheckConverter(true, converter, testString, "346", string.Empty);
+		CheckConversionPasses(converter, testString, "346", string.Empty, 346);
 	}
 
 	[Test]
@@ -230,7 +231,7 @@ public class ConsoleTests
 		IntConverter converter = new IntConverter();
 		string testString = "4563.23";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -239,7 +240,7 @@ public class ConsoleTests
 		IntConverter converter = new IntConverter();
 		string testString = "a873";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -248,7 +249,7 @@ public class ConsoleTests
 		IntConverter converter = new IntConverter();
 		string testString = "873d";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -257,7 +258,7 @@ public class ConsoleTests
 		IntConverter converter = new IntConverter();
 		string testString = "8743 45873";
 
-		CheckConverter(true, converter, testString, "8743", " 45873");
+		CheckConversionPasses(converter, testString, "8743", " 45873", 8743);
 	}
 
 
@@ -269,7 +270,7 @@ public class ConsoleTests
 		FloatConverter converter = new FloatConverter();
 		string testString = "234.26";
 
-		CheckConverter(true, converter, testString, "234.26", string.Empty);
+		CheckConversionPasses(converter, testString, "234.26", string.Empty, 234.26f);
 	}
 
 	[Test]
@@ -278,7 +279,7 @@ public class ConsoleTests
 		FloatConverter converter = new FloatConverter();
 		string testString = "234.26 \"Test String\"";
 
-		CheckConverter(true, converter, testString, "234.26", " \"Test String\"");
+		CheckConversionPasses(converter, testString, "234.26", " \"Test String\"", 234.26f);
 	}
 
 	[Test]
@@ -287,7 +288,7 @@ public class ConsoleTests
 		FloatConverter converter = new FloatConverter();
 		string testString = "45423.8 \"Test String\" 546.2";
 
-		CheckConverter(true, converter, testString, "45423.8", " \"Test String\" 546.2");
+		CheckConversionPasses(converter, testString, "45423.8", " \"Test String\" 546.2", 45423.8f);
 	}
 
 	[Test]
@@ -296,7 +297,7 @@ public class ConsoleTests
 		FloatConverter converter = new FloatConverter();
 		string testString = "s45423.8";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -305,7 +306,7 @@ public class ConsoleTests
 		FloatConverter converter = new FloatConverter();
 		string testString = "45423.8dfjgh";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -317,7 +318,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(1,2)";
 
-		CheckConverter(true, converter, testString, "(1,2)", string.Empty);
+		CheckConversionPasses(converter, testString, "(1,2)", string.Empty, new Vector2(1, 2));
 	}
 
 	[Test]
@@ -326,7 +327,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(6, 2)";
 
-		CheckConverter(true, converter, testString, "(6, 2)", string.Empty);
+		CheckConversionPasses(converter, testString, "(6, 2)", string.Empty, new Vector2(6, 2));
 	}
 
 	[Test]
@@ -335,7 +336,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(5,3.4)";
 
-		CheckConverter(true, converter, testString, "(5,3.4)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5,3.4)", string.Empty, new Vector2(5, 3.4f));
 	}
 
 	[Test]
@@ -344,7 +345,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(5, 3.4)";
 
-		CheckConverter(true, converter, testString, "(5, 3.4)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5, 3.4)", string.Empty, new Vector2(5, 3.4f));
 	}
 
 	[Test]
@@ -353,7 +354,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "fd(5,3.4)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -362,7 +363,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(5,3.4)6u5rf";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -371,7 +372,7 @@ public class ConsoleTests
 		Vector2Converter converter = new Vector2Converter();
 		string testString = "(5,3.4) (1,2,3)";
 
-		CheckConverter(true, converter, testString, "(5,3.4)", " (1,2,3)");
+		CheckConversionPasses(converter, testString, "(5,3.4)", " (1,2,3)", new Vector2(5, 3.4f));
 	}
 
 
@@ -383,7 +384,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(1,2,3)";
 
-		CheckConverter(true, converter, testString, "(1,2,3)", string.Empty);
+		CheckConversionPasses(converter, testString, "(1,2,3)", string.Empty, new Vector3(1, 2, 3));
 	}
 
 	[Test]
@@ -392,7 +393,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(6, 2, 7)";
 
-		CheckConverter(true, converter, testString, "(6, 2, 7)", string.Empty);
+		CheckConversionPasses(converter, testString, "(6, 2, 7)", string.Empty, new Vector3(6, 2, 7));
 	}
 
 	[Test]
@@ -401,7 +402,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(5,3.4,345.21)";
 
-		CheckConverter(true, converter, testString, "(5,3.4,345.21)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5,3.4,345.21)", string.Empty, new Vector3(5, 3.4f, 345.21f));
 	}
 
 	[Test]
@@ -410,7 +411,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(5, 3.4, 673.245)";
 
-		CheckConverter(true, converter, testString, "(5, 3.4, 673.245)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5, 3.4, 673.245)", string.Empty, new Vector3(5, 3.4f, 673.245f));
 	}
 
 	[Test]
@@ -419,7 +420,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(5, 3.4,673.245)";
 
-		CheckConverter(true, converter, testString, "(5, 3.4,673.245)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5, 3.4,673.245)", string.Empty, new Vector3(5, 3.4f, 673.245f));
 	}
 
 	[Test]
@@ -428,7 +429,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(5,    3.4,673.245)";
 
-		CheckConverter(true, converter, testString, "(5,    3.4,673.245)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5,    3.4,673.245)", string.Empty, new Vector3(5, 3.4f, 673.245f));
 	}
 
 	[Test]
@@ -437,7 +438,7 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "fd(5,3.4,674.3)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -446,16 +447,16 @@ public class ConsoleTests
 		Vector3Converter converter = new Vector3Converter();
 		string testString = "(5,3.4,85.3)6u5rf";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
 	public void Vector3ConverterMultiple()
 	{
 		Vector3Converter converter = new Vector3Converter();
-		string testString = "(5,3.4,85.3) (1,2,3)";
+		string testString = "(67.2,3.4,85.3) (1,2,3)";
 
-		CheckConverter(true, converter, testString, "(5,3.4,85.3)", " (1,2,3)");
+		CheckConversionPasses(converter, testString, "(67.2,3.4,85.3)", " (1,2,3)", new Vector3(67.2f, 3.4f, 85.3f));
 	}
 	
 
@@ -467,7 +468,7 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "(1,2,3,234)";
 
-		CheckConverter(true, converter, testString, "(1,2,3,234)", string.Empty);
+		CheckConversionPasses(converter, testString, "(1,2,3,234)", string.Empty, new Vector4(1, 2, 3, 234));
 	}
 
 	[Test]
@@ -476,7 +477,7 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "(6, 2, 7, 78)";
 
-		CheckConverter(true, converter, testString, "(6, 2, 7, 78)", string.Empty);
+		CheckConversionPasses(converter, testString, "(6, 2, 7, 78)", string.Empty, new Vector4(6, 2, 7, 78));
 	}
 
 	[Test]
@@ -485,25 +486,25 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "(5,3.4,345.21,6.21)";
 
-		CheckConverter(true, converter, testString, "(5,3.4,345.21,6.21)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5,3.4,345.21,6.21)", string.Empty, new Vector4(5, 3.4f, 345.21f, 6.21f));
 	}
 
 	[Test]
 	public void Vector4ConverterWholeSpacesFloat()
 	{
 		Vector4Converter converter = new Vector4Converter();
-		string testString = "(5, 3.4, 673.245, 4.32)";
+		string testString = "(64.3, 3, 673.245, 4.32)";
 
-		CheckConverter(true, converter, testString, "(5, 3.4, 673.245, 4.32)", string.Empty);
+		CheckConversionPasses(converter, testString, "(64.3, 3, 673.245, 4.32)", string.Empty, new Vector4(64.3f, 3, 673.245f, 4.32f));
 	}
 
 	[Test]
 	public void Vector4ConverterWholeRandomSpaces()
 	{
 		Vector4Converter converter = new Vector4Converter();
-		string testString = "(5, 3.4,673.245, 4.32)";
+		string testString = "(5.2, 3.4,673, 4.32)";
 
-		CheckConverter(true, converter, testString, "(5, 3.4,673.245, 4.32)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5.2, 3.4,673, 4.32)", string.Empty, new Vector4(5.2f, 3.4f, 673, 4.32f));
 	}
 
 	[Test]
@@ -512,7 +513,7 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "(5,    3.4,673.245, 43.32)";
 
-		CheckConverter(true, converter, testString, "(5,    3.4,673.245, 43.32)", string.Empty);
+		CheckConversionPasses(converter, testString, "(5,    3.4,673.245, 43.32)", string.Empty, new Vector4(5, 3.4f, 673.245f, 43.32f));
 	}
 
 	[Test]
@@ -521,7 +522,7 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "fd(5,3.4,674.3,445.32)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -530,16 +531,16 @@ public class ConsoleTests
 		Vector4Converter converter = new Vector4Converter();
 		string testString = "(5,3.4,85.3,4.32)6u5rf";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
 	public void Vector4ConverterMultiple()
 	{
 		Vector4Converter converter = new Vector4Converter();
-		string testString = "(5,3.4,85.3,4.32) (1,2,3)";
+		string testString = "(5,3.4,85.3,4) (1,2,3)";
 
-		CheckConverter(true, converter, testString, "(5,3.4,85.3,4.32)", " (1,2,3)");
+		CheckConversionPasses(converter, testString, "(5,3.4,85.3,4)", " (1,2,3)", new Vector4(5, 3.4f, 85.3f, 4));
 	}
 
 
@@ -550,7 +551,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgb(0.2,0.3,1)";
 
-		CheckConverter(true, converter, testString, "rgb(0.2,0.3,1)", string.Empty);
+		CheckConversionPasses(converter, testString, "rgb(0.2,0.3,1)", string.Empty, new Color(0.2f, 0.3f, 1f));
 	}
 
 	public void RGBColorConverterMultiple()
@@ -558,7 +559,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgb(0.2,0.3,1) rgb(1,0.245,0.7)";
 
-		CheckConverter(true, converter, testString, "rgb(0.2,0.3)", " rgb(1,0.245,0.7)");
+		CheckConversionPasses(converter, testString, "rgb(0.2,0.3)", " rgb(1,0.245,0.7)", new Color(0.2f, 0.3f, 1f));
 	}
 
 	public void RGBColorConverterRGBA()
@@ -566,7 +567,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgba(0.2,0.3,1,0.2)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	public void RGBColorConverterWholeMalformedPre()
@@ -574,7 +575,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "srgb(0.2,0.3,1)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	public void RGBColorConverterWholeMalformedPost()
@@ -582,7 +583,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgb(0.2,0.3,1)s";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -593,7 +594,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgba(0.2,0.3,1,1)";
 
-		CheckConverter(true, converter, testString, "rgba(0.2,0.3,1)", string.Empty);
+		CheckConversionPasses(converter, testString, "rgba(0.2,0.3,1)", string.Empty, new Color(0.2f, 0.3f, 1f, 1f));
 	}
 
 	public void RGBAColorConverterMultiple()
@@ -601,7 +602,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgba(0.2,0.3,1,1) rgba(1,0.245,0.7,1)";
 
-		CheckConverter(true, converter, testString, "rgba(0.2,0.3,1)", " rgba(1,0.245,0.7,1)");
+		CheckConversionPasses(converter, testString, "rgba(0.2,0.3,1)", " rgba(1,0.245,0.7,1)", new Color(0.2f, 0.3f, 1f));
 	}
 
 	public void RGBAColorConverterWholeRGB()
@@ -609,7 +610,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgba(0.2,0.3,1)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	public void RGBAColorConverterWholeRGBAlt()
@@ -617,7 +618,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgb(0.2,0.3,1)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	public void RGBAColorConverterWholeMalformedPre()
@@ -625,7 +626,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "srgba(0.2,0.3,1,1)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	public void RGBAColorConverterWholeMalformedPost()
@@ -633,7 +634,7 @@ public class ConsoleTests
 		RGBColorConverter converter = new RGBColorConverter();
 		string testString = "rgba(0.2,0.3,1,1)s";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -645,7 +646,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "red";
 
-		CheckConverter(true, converter, testString, "red", string.Empty);
+		CheckConversionPasses(converter, testString, "red", string.Empty, Color.red);
 	}
 
 	[Test]
@@ -654,7 +655,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "bred";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -663,7 +664,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "redish";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -672,7 +673,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#FF4FE2";
 
-		CheckConverter(true, converter, testString, "#FF4FE2", string.Empty);
+		CheckConversionPasses(converter, testString, "#FF4FE2", string.Empty, new Color(1f, 79f/255f, 226f/255f));
 	}
 
 	[Test]
@@ -681,7 +682,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#fe74ab";
 
-		CheckConverter(true, converter, testString, "#fe74ab", string.Empty);
+		CheckConversionPasses(converter, testString, "#fe74ab", string.Empty, new Color(254f/255f, 116f/255f, 171f/255f));
 	}
 
 	[Test]
@@ -690,7 +691,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#Ff4Fe2";
 
-		CheckConverter(true, converter, testString, "#Ff4Fe2", string.Empty);
+		CheckConversionPasses(converter, testString, "#Ff4Fe2", string.Empty, new Color(1f, 79f/255f, 226f/255f));
 	}
 
 	[Test]
@@ -699,7 +700,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#FF4FE2FF";
 
-		CheckConverter(true, converter, testString, "#FF4FE2FF", string.Empty);
+		CheckConversionPasses(converter, testString, "#FF4FE2FF", string.Empty, new Color(1f, 79f/255f, 226f/255f, 1f));
 	}
 
 	[Test]
@@ -708,7 +709,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#fe74abff";
 
-		CheckConverter(true, converter, testString, "#fe74abff", string.Empty);
+		CheckConversionPasses(converter, testString, "#fe74abff", string.Empty, new Color(254f/255f, 116f/255f, 171f/255f, 1f));
 	}
 
 	[Test]
@@ -717,7 +718,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#Ff4Fe2fF";
 
-		CheckConverter(true, converter, testString, "#Ff4Fe2fF", string.Empty);
+		CheckConversionPasses(converter, testString, "#Ff4Fe2fF", string.Empty, new Color(1f, 79f/255f, 226f/255f, 1f));
 	}
 
 	[Test]
@@ -726,7 +727,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#Ff4Fe2f";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -735,7 +736,7 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#Ff4Fe2ff2";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -744,55 +745,74 @@ public class ConsoleTests
 		HTMLColorConverter converter = new HTMLColorConverter();
 		string testString = "#Ff4Qe2ff";
 
-		CheckConverter(false, converter, testString);
-	}
-
-	[Test]
-	public void GameObjectConverterWholeSingleWord()
-	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{TestObject}";
-
-		CheckConverter(true, converter, testString, "{TestObject}", string.Empty);
+		CheckConversionFails(converter, testString);
 	}
 
 
 	// GameObject
 
 	[Test]
+	public void GameObjectConverterWholeSingleWord()
+	{
+		GameObject gameObject = new GameObject("TestObject");
+
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{TestObject}";
+
+		CheckConversionPasses(converter, testString, "{TestObject}", string.Empty, gameObject);
+	}
+
+	[Test]
 	public void GameObjectConverterWholeMultiWord()
 	{
+		GameObject gameObject = new GameObject("Test Object");
+
 		GameObjectConverter converter = new GameObjectConverter();
 		string testString = "{Test Object}";
 
-		CheckConverter(true, converter, testString, "{Test Object}", string.Empty);
+		CheckConversionPasses(converter, testString, "{Test Object}", string.Empty, gameObject);
+	}
+
+	[Test]
+	public void GameObjectConverterNull()
+	{
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{NonExistentObject}";
+
+		CheckConversionPasses<GameObject>(converter, testString, "{NonExistentObject}", string.Empty, null);
 	}
 
 	[Test]
 	public void GameObjectConverterPartialSingleWord()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{TestObject} (1,2,3,4)";
+		GameObject gameObject = new GameObject("TestObject1");
 
-		CheckConverter(true, converter, testString, "{TestObject}", " (1,2,3,4)");
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{TestObject1} (1,2,3,4)";
+
+		CheckConversionPasses(converter, testString, "{TestObject1}", " (1,2,3,4)", gameObject);
 	}
 
 	[Test]
 	public void GameObjectConverterPartialMultiWord()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{Test Object} \"Test String\"";
+		GameObject gameObject = new GameObject("Test Object2");
 
-		CheckConverter(true, converter, testString, "{Test Object}", " \"Test String\"");
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{Test Object2} \"Test String\"";
+
+		CheckConversionPasses(converter, testString, "{Test Object2}", " \"Test String\"", gameObject);
 	}
 
 	[Test]
 	public void GameObjectConverterPartialMultiple()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{Test Object} \"Test String\" {AnotherTest Object}";
+		GameObject gameObject = new GameObject("Test Object3");
 
-		CheckConverter(true, converter, testString, "{Test Object}", " \"Test String\" {AnotherTest Object}");
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{Test Object3} \"Test String\" {AnotherTest Object}";
+
+		CheckConversionPasses(converter, testString, "{Test Object3}", " \"Test String\" {AnotherTest Object}", gameObject);
 	}
 
 	[Test]
@@ -801,7 +821,7 @@ public class ConsoleTests
 		GameObjectConverter converter = new GameObjectConverter();
 		string testString = "sd{Test Object}";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -810,7 +830,7 @@ public class ConsoleTests
 		GameObjectConverter converter = new GameObjectConverter();
 		string testString = "{Test Object}s";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -819,34 +839,40 @@ public class ConsoleTests
 		GameObjectConverter converter = new GameObjectConverter();
 		string testString = "TestObject";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
 	public void GameObjectConverterWithCurlyBraceInside()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{Test{Object}";
+		GameObject gameObject = new GameObject("Test{Object4");
 
-		CheckConverter(true, converter, testString, "{Test{Object}", string.Empty);
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{Test{Object4}";
+
+		CheckConversionPasses(converter, testString, "{Test{Object4}", string.Empty, gameObject);
 	}
 
 	[Test]
 	public void GameObjectConverterWithMultipleCurlyBraceInside()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{Test{Obje}ct}";
+		GameObject gameObject = new GameObject("Test{Obje}ct5");
 
-		CheckConverter(true, converter, testString, "{Test{Obje}ct}", string.Empty);
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{Test{Obje}ct5}";
+
+		CheckConversionPasses(converter, testString, "{Test{Obje}ct5}", string.Empty, gameObject);
 	}
 
 	[Test]
 	public void GameObjectConverterWithMultipleCurlyBraceInsideMultiple()
 	{
-		GameObjectConverter converter = new GameObjectConverter();
-		string testString = "{Test{Obje}ct} {Other}}";
+		GameObject gameObject = new GameObject("Test{Obje}ct6");
 
-		CheckConverter(true, converter, testString, "{Test{Obje}ct}", " {Other}}");
+		GameObjectConverter converter = new GameObjectConverter();
+		string testString = "{Test{Obje}ct6} {Other}}";
+
+		CheckConversionPasses(converter, testString, "{Test{Obje}ct6}", " {Other}}", gameObject);
 	}
 
 	[Test]
@@ -855,7 +881,7 @@ public class ConsoleTests
 		GameObjectConverter converter = new GameObjectConverter();
 		string testString = "(TestObject)";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 
@@ -867,7 +893,7 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "null";
 
-		CheckConverter(true, converter, testString, "null", string.Empty);
+		CheckConversionPasses<object>(converter, testString, "null", string.Empty, null);
 	}
 
 	[Test]
@@ -876,7 +902,7 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "Null";
 
-		CheckConverter(true, converter, testString, "Null", string.Empty);
+		CheckConversionPasses<object>(converter, testString, "Null", string.Empty, null);
 	}
 
 	[Test]
@@ -885,7 +911,7 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "null (1,3.5,50.214)";
 
-		CheckConverter(true, converter, testString, "null", " (1,3.5,50.214)");
+		CheckConversionPasses<object>(converter, testString, "null", " (1,3.5,50.214)", null);
 	}
 
 	[Test]
@@ -894,7 +920,7 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "qnull";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -903,7 +929,7 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "nulll";
 
-		CheckConverter(false, converter, testString);
+		CheckConversionFails(converter, testString);
 	}
 
 	[Test]
@@ -912,6 +938,6 @@ public class ConsoleTests
 		NullConverter converter = new NullConverter();
 		string testString = "null null";
 
-		CheckConverter(true, converter, testString, "null", " null");
+		CheckConversionPasses<object>(converter, testString, "null", " null", null);
 	}
 }
