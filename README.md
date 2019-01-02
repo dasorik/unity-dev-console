@@ -29,7 +29,10 @@ public class MyCommands : ICommandLibrary
 }
 ```
 
-To give a command parameters, simply add parameters to the method. The following could be run as `test-command-with-params "Test" 23.4`. At present there are a limited number of valid types for parameters (see next section below)
+To give a command parameters, simply add parameters to the method. The following could be run as:
+`test-command-with-params "Test" 23.4`.
+
+At present there are a limited number of valid types for parameters (see next section below)
 
 ```cs
 public class MyCommands : ICommandLibrary
@@ -47,21 +50,23 @@ The following types can be used as parameters. Support can be added for addition
 
 Type | Format | Examples
 ---- | ------ | --------
-Float | *.** | 2.3, 23.53, 1.0, -12.354
-Int | * | 1, 454, 23
-String | "*" | "Example String", "Test"
-Char | '*' | 'a', 'b', 'c'
+Float | \*.\*\* | 2.3, 23.53, 1.0, -12.354
+Int | \* | 1, 454, 23
+String | "\*" | "Example String", "Test"
+Char | '\*' | 'a', 'b', 'c'
 Bool | [Tr]rue, [Ff]alse | true, false, True, False
-Vector2 | (*,*) | (1,2), (4.3, 4)
-Vector3 | (*,*,*) | (1,2,3), (4.3, 4, -1)
-Vector4 | (*,*,*,*) | (1,2,3,4), (4.3, 4, -1, 2.78)
-Color | rgba(*,*,*,*)<br>rgb(*,*,*)<br>#******<br>#********<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
-GameObject | {*} | {TestSphere} {Player}
+Vector2 | (\*,\*) | (1,2), (4.3, 4)
+Vector3 | (\*,\*,\*) | (1,2,3), (4.3, 4, -1)
+Vector4 | (\*,\*,\*,\*) | (1,2,3,4), (4.3, 4, -1, 2.78)
+Color | rgba(\*,\*,\*,\*)<br>rgb(*,*,*)<br>#******<br>#********<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
+GameObject | {\*} | {TestSphere} {Player}
 Null | [Nn]null | null, Null
 
 * Valid HTML colour literals are the following:
-```"red", "cyan", "blue", "darkblue", "lightblue", "purple", "yellow", "lime", "fuchsia", "white", "silver",
-"grey", "black", "orange", "brown", "maroon", "green", "olive", "navy", "teal", "aqua", "magenta"```
+```
+"red", "cyan", "blue", "darkblue", "lightblue", "purple", "yellow", "lime", "fuchsia", "white", "silver",
+"grey", "black", "orange", "brown", "maroon", "green", "olive", "navy", "teal", "aqua", "magenta"
+```
 
 ## Variables
 Variables can be set that are able to be used lated within that session. To set a variable, enter `set {VarName} {Value}` into the console (ie. `set name "Tony"`). A variable can be set to any value, and can be set more than once.
