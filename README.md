@@ -73,18 +73,17 @@ Variables can be set that are able to be used lated within that session. To set 
 Call `unset {VarName}` to remove the variable and the stored value.
 
 You can use a variable in place of any regular parameter, providing it has been set with a value and that value could be used in the command context.
-So for example:
 
-Instead of writing
-`spawn-prefab "TestSphere" (1,2,3)`
-you can instead write (in sequence)
-`set spawnpos (1,2,3)`
-`spawn-prefab "TestSphere" spawnpos`
+So for example, Instead of writing<br>
+`spawn-prefab "TestSphere" (1,2,3)`<br>
+you can instead write (in sequence)<br>
+`set spawnpos (1,2,3)`<br>
+`spawn-prefab "TestSphere" spawnpos`<br>
 for the same effect. `spawnpos` will now have the value of a Vector3 with the value (1,2,3) for the rest of the session
 
-Conversely
-`set spawnpos "London"`
-`spawn-prefab "TestSphere" spawnpos`
+Conversely<br>
+`set spawnpos "London"`<br>
+`spawn-prefab "TestSphere" spawnpos`<br>
 will not work, because `"London"` is not a Vector3 as expected by the `spawn-prefab` command
 
 ## Additional Notes
