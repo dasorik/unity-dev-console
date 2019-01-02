@@ -17,7 +17,7 @@ namespace DeveloperConsole
 
 	public abstract class BaseConverter : IConverter
 	{
-		protected const string BOUNDRY_TERMINATOR = @"($|(?=\s))";
+		protected const string BOUNDRY_TERMINATOR = @"(?=$|\s)";
 
 		protected string matchPattern;
 
@@ -52,8 +52,9 @@ namespace DeveloperConsole
 
 		public StringConverter()
 		{
-			matchPattern = $@"^[\""].*?[\""]{BOUNDRY_TERMINATOR}";
-			extractionPattern = "(?<=[\"]).*?(?=[\"])";
+			matchPattern = $@"^\""(?:\\.|[^\""])*\""{BOUNDRY_TERMINATOR}";
+			Debug.Log(matchPattern);
+			extractionPattern = "(?<=[\"]).*(?=[\"])";
 		}
 
 		public override object Convert(string value)
@@ -67,7 +68,7 @@ namespace DeveloperConsole
 	{
 		public BoolConverter()
 		{
-			matchPattern = "^(\b[Ff]alse\b|\b[Tt]rue\b)";
+			matchPattern = @"^(\b[Ff]alse\b|\b[Tt]rue\b)";
 		}
 
 		public override object Convert(string value)
@@ -251,7 +252,7 @@ namespace DeveloperConsole
 	{
 		public HTMLColorConverter()
 		{
-			matchPattern = $@"^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8}){BOUNDRY_TERMINATOR}";
+			matchPattern = $@"^#([0-9A-Fa-f]{{6}}|[0-9A-Fa-f]{{8}}){BOUNDRY_TERMINATOR}";
 		}
 
 		public override bool CanConvert(string parameterString, out string parameter, out string subString)
