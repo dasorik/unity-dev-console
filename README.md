@@ -29,7 +29,7 @@ public class MyCommands : ICommandLibrary
 }
 ```
 
-To give a command parameters, simply add parameters to the method. The following could be run as:
+To give a command parameters, simply add parameters to the method. The following could be run as:<br>
 `test-command-with-params "Test" 23.4`.
 
 At present there are a limited number of valid types for parameters (see next section below)
@@ -46,7 +46,9 @@ public class MyCommands : ICommandLibrary
 ```
 
 ## Syntax
-The following types can be used as parameters. Support can be added for additional types by creating an `IConverter` that resolves to the requested type. This will however require modifying DeveloperConsole.cs to add them to the list of available converters. (Official support for external converters will be added soon)
+The following types can be used as parameters. 
+
+Support can be added for additional types by creating an `IConverter` that resolves to the requested type. This will however require modifying DeveloperConsole.cs to add them to the list of available converters. (Official support for external converters will be added soon)
 
 Type | Format | Examples
 ---- | ------ | --------
@@ -58,7 +60,7 @@ Bool | [Tr]rue, [Ff]alse | true, false, True, False
 Vector2 | (\*,\*) | (1,2), (4.3, 4)
 Vector3 | (\*,\*,\*) | (1,2,3), (4.3, 4, -1)
 Vector4 | (\*,\*,\*,\*) | (1,2,3,4), (4.3, 4, -1, 2.78)
-Color | rgba(\*,\*,\*,\*)<br>rgb(*,*,*)<br>#******<br>#********<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
+Color | rgba(\*,\*,\*,\*)<br>rgb(\*,\*,\*)<br>#******<br>#********<br>HTML Literal | rgba(0.2, 0.5, 0.4, 1)<br>rgb(0.2, 0.5, 0.4)<br>#FF5D33<br>#FF5D33FF<br>red, blue, green etc
 GameObject | {\*} | {TestSphere} {Player}
 Null | [Nn]null | null, Null
 
@@ -69,7 +71,8 @@ Null | [Nn]null | null, Null
 ```
 
 ## Variables
-Variables can be set that are able to be used lated within that session. To set a variable, enter `set {VarName} {Value}` into the console (ie. `set name "Tony"`). A variable can be set to any value, and can be set more than once.
+Variables can be set that are able to be used lated within that session. To set a variable, enter `set {VarName} {Value}` into the console (ie. `set name "Tony"`). A variable can be set to any value, and can be set more than once. A variable cannot be a colour literal (see above), or the following: `true, false, null`.
+
 Call `unset {VarName}` to remove the variable and the stored value.
 
 You can use a variable in place of any regular parameter, providing it has been set with a value and that value could be used in the command context.
